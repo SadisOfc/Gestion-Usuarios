@@ -17,9 +17,10 @@ public class App {
         AuthService authService = new AuthService(usersList);
         Scanner l = new Scanner(System.in);
         boolean login = false;
-        User user;
-        String nombre,u_name,pass;
-        int id,rol;
+        User user,activeUser = null;
+        boolean b;
+        String nombre,u_name,pass,nuevoNombre;
+        int id, rol,failureCount=0;
         UserService userService = new UserService(usersList);
 
         User owner = new User("Juan Dueñas","Sadisxz","contraseña123", Roles.OWNER);
@@ -31,10 +32,11 @@ public class App {
             System.out.println("Ingrese su contraseña");
             String contraseña = l.nextLine();
             login = authService.login(username,contraseña);
-            User activeUser = usersList.searchUser(username);
+            activeUser = usersList.searchUser(username);
             if(login){
-                Set<Actions> actionsUser = Permissions.accionesRoles.get(activeUser.getRole());
                 while(login){
+                    Set<Actions> actionsUser = Permissions.accionesRoles.get(activeUser.getRole());
+                    b = false;
                     System.out.println("-- Menú --");
                     if(activeUser.getRole()==Roles.GUEST) System.out.println("No tiene permisos para ver el menú");
                     System.out.println("0. Cerrar Sesión");
@@ -46,6 +48,7 @@ public class App {
                     if(actionsUser.contains(Actions.ACTUALIZAR_NOMBRE)) System.out.println("6. Actualizar Nombre");
                     if(actionsUser.contains(Actions.ACTUALIZAR_CONTRASEÑA)) System.out.println("7. Actualizar Contraseña");
                     if(actionsUser.contains(Actions.IMPRIMIR_HISTORIAL_COMPLETO)) System.out.println("8. Imprimir Historial de Todos los Usuarios");
+                    if(actionsUser.contains(Actions.MODIFICAR_DATOS_DE_OTRO_USUARIO)) System.out.println("9. Modificar los datos de otro Usuario");
 
                     int menu = Integer.parseInt(l.nextLine());
                     System.out.println();
@@ -120,7 +123,7 @@ public class App {
                                             System.out.println("Rol inválido.");
                                             break;
                                         }
-                                        if (userService.updateRol(activeUser.getRole(), user, Roles.getRol(rol))) {
+                                        if (userService.updateRole(activeUser.getRole(), user, Roles.getRol(rol))) {
                                             System.out.println("Se ha modificado el rol");
                                             break;
                                         }
@@ -136,7 +139,7 @@ public class App {
                                             System.out.println("Rol inválido.");
                                             break;
                                         }
-                                        if (userService.updateRol(activeUser.getRole(), user, Roles.getRol(rol))) {
+                                        if (userService.updateRole(activeUser.getRole(), user, Roles.getRol(rol))) {
                                             System.out.println("Se ha modificado el rol");
                                             break;
                                         }
@@ -195,8 +198,8 @@ public class App {
                             break;
                         case 6: // Actualizar nombre
                             if (actionsUser.contains(Actions.ACTUALIZAR_NOMBRE)) {
-                                System.out.println("Nuevo nombre completo:");
-                                String nuevoNombre = l.nextLine();
+                                System.out.println("-- Nuevo nombre completo:");
+                                nuevoNombre = l.nextLine();
                                 if (userService.updateName(activeUser.getRole(), activeUser, nuevoNombre)) {
                                     System.out.println("Nombre actualizado correctamente.");
                                 } else {
@@ -209,11 +212,11 @@ public class App {
 
                         case 7:
                             if (actionsUser.contains(Actions.ACTUALIZAR_CONTRASEÑA)) {
-                                System.out.println("Contraseña actual:");
+                                System.out.println("-- Contraseña actual:");
                                 String actual = l.nextLine();
                                 System.out.println("Nueva contraseña:");
                                 String nueva = l.nextLine();
-                                if (userService.updateRol(activeUser.getRole(), activeUser, actual, nueva)) {
+                                if (userService.updatePassword(activeUser.getRole(), activeUser, actual, nueva)) {
                                     System.out.println("Contraseña actualizada correctamente.");
                                 } else {
                                     System.out.println("Contraseña incorrecta o no tienes permiso.");
@@ -224,8 +227,42 @@ public class App {
                             break;
                         case 8:
                             if(actionsUser.contains(Actions.IMPRIMIR_HISTORIAL_COMPLETO)){
-                                System.out.println("Historial Completo");
+                                System.out.println("-- Historial Completo --");
                                 usersList.getActionsList().printAllUsers();
+                            }
+                            break;
+                        case 9:
+                            if(actionsUser.contains(Actions.MODIFICAR_DATOS_DE_OTRO_USUARIO)){
+                                System.out.println("-- Modificar Usuario Existente --");
+                                System.out.println("Ingrese el username: ");
+                                username = l.nextLine();
+                                user = usersList.searchUser(username);
+                                if(user != null){
+                                    System.out.println("Opciones");
+                                    System.out.println("1. Modificar nombre");
+                                    System.out.println("2. Modificar contraseña");
+                                    menu = Integer.parseInt(l.nextLine());
+                                    switch (menu){
+                                        case 1:
+                                            System.out.println("Nuevo nombre:");
+                                            nuevoNombre = l.nextLine();
+                                            b = userService.updateName(activeUser.getRole(),user,nuevoNombre);
+                                            if(b) System.out.println("Nombre modificado: " + b);
+                                            break;
+                                        case 2:
+                                            System.out.println("Nueva Contraseña:");
+                                            pass = l.nextLine();
+                                            b = userService.updatePassword(activeUser.getRole(),user,user.getPassword(),pass);
+                                            if(b) System.out.println("contraseña modificado: " + b);
+                                            break;
+                                        default:
+                                            break;
+                                    }
+                                }else{
+                                    System.out.println("No se encontró ese usuario");
+                                }
+                            }else{
+                                System.out.println("No tienes permiso para realizar esta acción");
                             }
                             break;
                         default:
@@ -233,8 +270,13 @@ public class App {
                             break;
                     }
                 }
-            }else{
-                System.out.println("Usuario o Contraseña inválida");
+            }else if(authService.getBlockedList().contains(activeUser)){ //FIXME: Arreglar el bloque de cuentas después de 3 fallos
+                System.out.println("Usuario Bloqueado por fallar múltiples veces el inicio de sesión");
+                }else{
+                System.out.println("Usuario o contraseña incorrecta");
+                if(activeUser != null){
+
+                }
             }
         }
     }

@@ -28,7 +28,8 @@ public class UserService {
                 return false;
         }
     }
-    public boolean updateRol(Roles roleActually, User user, Roles newRole){
+
+    public boolean updateRole(Roles roleActually, User user, Roles newRole){
         if(user.getRole()!=Roles.OWNER && (roleActually==Roles.ADMIN || roleActually==Roles.OWNER)){
             usersList.updateRole(user,newRole);
             return true;
@@ -36,7 +37,7 @@ public class UserService {
         return false;
     }
 
-    public boolean updateRol(Roles roleActually, User user, String oldPassword, String newPassword){
+    public boolean updatePassword(Roles roleActually, User user, String oldPassword, String newPassword){
         switch (roleActually){
             case OWNER,ADMIN,USER:
                 return usersList.updatePassword(user, oldPassword, newPassword);

@@ -64,8 +64,8 @@ public class UsersList {
         return actionsList;
     }
 
-    public void updateName(User user, String nuevoNombre){
-        user.setFullname(nuevoNombre);
+    public void updateName(User user, String newName){
+        user.setFullname(newName);
         actionsList.createRegister(user.getID(),new Action(user,"Se actualizó el nombre del usuario " + user.getUsername(), LocalDateTime.now()));
     }
 }

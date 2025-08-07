@@ -1,6 +1,7 @@
 package com.gestion.repository;
 
 import com.gestion.models.Action;
+import com.gestion.models.User;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -24,7 +25,8 @@ public class ActionsList {
 
     public void printUser(int id){
         List<Action> list = historial.get(id);
-        System.out.println("Id: " + id + " - Username: " + list.getFirst().getUser().getUsername() + " - Nombre Completo: " + list.getFirst().getUser().getFullname());
+        User user = list.getFirst().getUser();
+        System.out.println("Id: " + id + " - Username: " + user.getUsername() + " - Nombre Completo: " + user.getFullname() + " - Rol: " + user.getRole());
         list.forEach(System.out::println);
     }
 
