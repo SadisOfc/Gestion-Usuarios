@@ -27,7 +27,7 @@ public class ActionsList {
     }
     public void imprimirUsuario(int id){
         List<Action> lista = historial.get(id);
-        System.out.println("Id: " + id);
+        System.out.println("Id: " + id + " - Username: " + lista.getFirst().getUser().getUsername() + " - Nombre Completo: " + lista.getFirst().getUser().getFullname());
         lista.forEach(System.out::println);
     }
 

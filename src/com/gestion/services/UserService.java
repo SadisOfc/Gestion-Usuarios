@@ -9,12 +9,12 @@ public class UserService {
     public UserService(UsersList usersList){
         this.usersList = usersList;
     }
+
     public boolean crear(Roles roleActualy,String fullname, String USERNAME, String password, Roles role){
         User user = new User(fullname, USERNAME, password, role);
         switch (roleActualy){
             case OWNER, ADMIN:
-                usersList.crearUsuario(user);
-                return true;
+                return usersList.crearUsuario(user);
             default:
                 return false;
         }
