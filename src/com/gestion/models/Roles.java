@@ -9,8 +9,8 @@ public enum Roles {
     public int getPriority(){
         return priority;
     }
-    public static Roles getRol(int num){
-        switch(num){
+    public static Roles getRol(int priority){
+        switch(priority){
             case 1:
                 return ADMIN;
             case 2:

@@ -12,49 +12,49 @@ public class UsersList {
     List<User> usersList = new ArrayList<>();
     static ActionsList actionsList = new ActionsList();
 
-    public User buscarUsuario(int id){
+    public User searchUser(int id){
         if(!usersList.isEmpty()){
             User user = usersList.stream().filter(a -> a.getID()==id).findFirst().orElse(null);
-            if(user != null)actionsList.crearRegistro(id, new Action(user,"Se buscó al usuario " + user.getUsername(), LocalDateTime.now()));
+            if(user != null)actionsList.createRegister(id, new Action(user,"Se buscó al usuario " + user.getUsername(), LocalDateTime.now()));
             return user;
         }
         return null;
     }
 
-    public User buscarUsuario(String username){
+    public User searchUser(String username){
         if(!usersList.isEmpty()){
             User user = usersList.stream().filter(a -> a.getUsername().equals(username)).findFirst().orElse(null);
-            if(user != null)actionsList.crearRegistro(user.getID(), new Action(user,"Se buscó al usuario " + user.getUsername(), LocalDateTime.now()));
+            if(user != null)actionsList.createRegister(user.getID(), new Action(user,"Se buscó al usuario " + user.getUsername(), LocalDateTime.now()));
             return user;
         }
         return null;
     }
 
-    public boolean crearUsuario(User usuario){
-        User u = buscarUsuario(usuario.getUsername());
+    public boolean createUser(User user){
+        User u = searchUser(user.getUsername());
         if(u == null){
-            usersList.add(usuario);
-            actionsList.crearRegistro(usuario.getID());
-            actionsList.crearRegistro(usuario.getID(),new Action(usuario,"Se creó el usuario " + usuario.getUsername(), LocalDateTime.now()));
+            usersList.add(user);
+            actionsList.createRegister(user.getID());
+            actionsList.createRegister(user.getID(),new Action(user,"Se creó el usuario " + user.getUsername(), LocalDateTime.now()));
             return true;
         }
         return false;
     }
 
-    public void eliminarUsuario(User user){
-            actionsList.crearRegistro(user.getID(),new Action(user,"Se eliminó el usuario " + user.getUsername(), LocalDateTime.now()));
+    public void removeUser(User user){
+            actionsList.createRegister(user.getID(),new Action(user,"Se eliminó el usuario " + user.getUsername(), LocalDateTime.now()));
             usersList.remove(user);
     }
 
-    public void actualizarRol(User user, Roles newRole){
+    public void updateRole(User user, Roles newRole){
             user.setRole(newRole);
-            actionsList.crearRegistro(user.getID(),new Action(user,"Se actualizó el rol de" + user.getUsername(), LocalDateTime.now()));
+            actionsList.createRegister(user.getID(),new Action(user,"Se actualizó el rol de" + user.getUsername(), LocalDateTime.now()));
     }
 
-    public boolean actualizarContraseña(User user, String passwordVieja, String passwordNueva){
-        if(passwordVieja.equals(user.getPassword())){
-         user.setPassword(passwordNueva);
-         actionsList.crearRegistro(user.getID(),new Action(user,"Se actualizó la contraseña del usuario " + user.getUsername(), LocalDateTime.now()));
+    public boolean updatePassword(User user, String oldPassword, String newPassword){
+        if(oldPassword.equals(user.getPassword())){
+         user.setPassword(newPassword);
+         actionsList.createRegister(user.getID(),new Action(user,"Se actualizó la contraseña del usuario " + user.getUsername(), LocalDateTime.now()));
          return true;
         }
         return false;
@@ -64,8 +64,8 @@ public class UsersList {
         return actionsList;
     }
 
-    public void actualizarNombre(User user, String nuevoNombre){
+    public void updateName(User user, String nuevoNombre){
         user.setFullname(nuevoNombre);
-        actionsList.crearRegistro(user.getID(),new Action(user,"Se actualizó el nombre del usuario " + user.getUsername(), LocalDateTime.now()));
+        actionsList.createRegister(user.getID(),new Action(user,"Se actualizó el nombre del usuario " + user.getUsername(), LocalDateTime.now()));
     }
 }

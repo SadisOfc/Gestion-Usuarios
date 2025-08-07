@@ -23,7 +23,7 @@ public class App {
         UserService userService = new UserService(usersList);
 
         User owner = new User("Juan Dueñas","Sadisxz","contraseña123", Roles.OWNER);
-        usersList.crearUsuario(owner);
+        usersList.createUser(owner);
         while(true){
             System.out.println("-- Inicio de Sesión --");
             System.out.println("Ingrese su Usuario");
@@ -31,7 +31,7 @@ public class App {
             System.out.println("Ingrese su contraseña");
             String contraseña = l.nextLine();
             login = authService.login(username,contraseña);
-            User activeUser = usersList.buscarUsuario(username);
+            User activeUser = usersList.searchUser(username);
             if(login){
                 Set<Actions> actionsUser = Permissions.accionesRoles.get(activeUser.getRole());
                 while(login){
@@ -52,7 +52,7 @@ public class App {
                     switch(menu){
                         case 0:
                             System.out.println("Cerrando sesión...");
-                            login = false;
+                            login = authService.logout();
                             break;
                         case 1:
                             if(actionsUser.contains(Actions.CREAR_USUARIO)){
@@ -69,7 +69,7 @@ public class App {
                                     System.out.println("Rol inválido.");
                                     break;
                                 }
-                                userService.crear(activeUser.getRole(),nombre,u_name,pass,Roles.getRol(rol));
+                                userService.create(activeUser.getRole(),nombre,u_name,pass,Roles.getRol(rol));
                             }
                             break;
                         case 2:
@@ -82,17 +82,17 @@ public class App {
                                     case 1:
                                         System.out.println("Ingrese el username");
                                         u_name = l.nextLine();
-                                        user = usersList.buscarUsuario(u_name);
+                                        user = usersList.searchUser(u_name);
                                         if(user != null && user.getRole()!=Roles.OWNER){
-                                            if(userService.eliminar(activeUser.getRole(),user)) System.out.println("Se eliminó correctamente");
+                                            if(userService.remove(activeUser.getRole(),user)) System.out.println("Se eliminó correctamente");
                                         }
                                         break;
                                     case 2:
                                         System.out.println("Ingrese el id");
                                         id = Integer.parseInt(l.nextLine());
-                                        user = usersList.buscarUsuario(id);
+                                        user = usersList.searchUser(id);
                                         if(user != null && user.getRole()!=Roles.OWNER){
-                                            if(userService.eliminar(activeUser.getRole(),user)) System.out.println("Se eliminó correctamente");
+                                            if(userService.remove(activeUser.getRole(),user)) System.out.println("Se eliminó correctamente");
                                         }
                                         break;
                                     default:
@@ -113,14 +113,14 @@ public class App {
                                     case 1:
                                         System.out.println("Ingrese el username");
                                         u_name = l.nextLine();
-                                        user = usersList.buscarUsuario(u_name);
+                                        user = usersList.searchUser(u_name);
                                         System.out.println("Nuevo Rol (1.ADMIN - 2.USER - 3.GUEST)");
                                         rol = Integer.parseInt(l.nextLine());
                                         if (rol < 1 || rol > 3) {
                                             System.out.println("Rol inválido.");
                                             break;
                                         }
-                                        if (userService.actualizarRol(activeUser.getRole(), user, Roles.getRol(rol))) {
+                                        if (userService.updateRol(activeUser.getRole(), user, Roles.getRol(rol))) {
                                             System.out.println("Se ha modificado el rol");
                                             break;
                                         }
@@ -129,14 +129,14 @@ public class App {
                                     case 2:
                                         System.out.println("Ingrese el id");
                                         id = Integer.parseInt(l.nextLine());
-                                        user = usersList.buscarUsuario(id);
+                                        user = usersList.searchUser(id);
                                         System.out.println("Nuevo Rol (1.ADMIN - 2.USER - 3.GUEST)");
                                         rol = Integer.parseInt(l.nextLine());
                                         if (rol < 1 || rol > 3) {
                                             System.out.println("Rol inválido.");
                                             break;
                                         }
-                                        if (userService.actualizarRol(activeUser.getRole(), user, Roles.getRol(rol))) {
+                                        if (userService.updateRol(activeUser.getRole(), user, Roles.getRol(rol))) {
                                             System.out.println("Se ha modificado el rol");
                                             break;
                                         }
@@ -159,7 +159,7 @@ public class App {
                                     case 1:
                                         System.out.println("Ingrese el username");
                                         u_name = l.nextLine();
-                                        user = usersList.buscarUsuario(u_name);
+                                        user = usersList.searchUser(u_name);
                                         if(user != null){
                                             System.out.println(user);
                                             break;
@@ -169,7 +169,7 @@ public class App {
                                     case 2:
                                         System.out.println("Ingrese el Id");
                                         id = Integer.parseInt(l.nextLine());
-                                        user = usersList.buscarUsuario(id);
+                                        user = usersList.searchUser(id);
                                         if(user != null){
                                             System.out.println(user);
                                             break;
@@ -187,7 +187,7 @@ public class App {
                         case 5:
                             if(actionsUser.contains(Actions.IMPRIMIR_HISTORIA)){
                                 System.out.println("-- Historial Acciones--");
-                                usersList.getActionsList().imprimirUsuario(activeUser.getID());
+                                usersList.getActionsList().printUser(activeUser.getID());
                             }else{
                                 System.out.println("No tienes permiso para realizar esta acción");
                             }
@@ -197,7 +197,7 @@ public class App {
                             if (actionsUser.contains(Actions.ACTUALIZAR_NOMBRE)) {
                                 System.out.println("Nuevo nombre completo:");
                                 String nuevoNombre = l.nextLine();
-                                if (userService.actualizarNombre(activeUser.getRole(), activeUser, nuevoNombre)) {
+                                if (userService.updateName(activeUser.getRole(), activeUser, nuevoNombre)) {
                                     System.out.println("Nombre actualizado correctamente.");
                                 } else {
                                     System.out.println("No tienes permiso o el nombre no se pudo actualizar.");
@@ -213,7 +213,7 @@ public class App {
                                 String actual = l.nextLine();
                                 System.out.println("Nueva contraseña:");
                                 String nueva = l.nextLine();
-                                if (userService.actualizarContraseña(activeUser.getRole(), activeUser, actual, nueva)) {
+                                if (userService.updateRol(activeUser.getRole(), activeUser, actual, nueva)) {
                                     System.out.println("Contraseña actualizada correctamente.");
                                 } else {
                                     System.out.println("Contraseña incorrecta o no tienes permiso.");
@@ -225,7 +225,7 @@ public class App {
                         case 8:
                             if(actionsUser.contains(Actions.IMPRIMIR_HISTORIAL_COMPLETO)){
                                 System.out.println("Historial Completo");
-                                usersList.getActionsList().imprimitTodos();
+                                usersList.getActionsList().printAllUsers();
                             }
                             break;
                         default:

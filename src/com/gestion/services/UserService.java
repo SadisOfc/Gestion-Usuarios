@@ -10,45 +10,45 @@ public class UserService {
         this.usersList = usersList;
     }
 
-    public boolean crear(Roles roleActualy,String fullname, String USERNAME, String password, Roles role){
-        User user = new User(fullname, USERNAME, password, role);
-        switch (roleActualy){
+    public boolean create(Roles currentRole, String fullname, String username, String password, Roles role){
+        User user = new User(fullname, username, password, role);
+        switch (currentRole){
             case OWNER, ADMIN:
-                return usersList.crearUsuario(user);
+                return usersList.createUser(user);
             default:
                 return false;
         }
     }
-    public boolean eliminar(Roles roleActualy,User user){
+    public boolean remove(Roles roleActualy, User user){
         switch (roleActualy){
             case OWNER,ADMIN:
-                usersList.eliminarUsuario(user);
+                usersList.removeUser(user);
                 return true;
             default:
-                    return false;
+                return false;
         }
     }
-    public boolean actualizarRol(Roles roleActually, User user, Roles newRole){
+    public boolean updateRol(Roles roleActually, User user, Roles newRole){
         if(user.getRole()!=Roles.OWNER && (roleActually==Roles.ADMIN || roleActually==Roles.OWNER)){
-            usersList.actualizarRol(user,newRole);
+            usersList.updateRole(user,newRole);
             return true;
         }
         return false;
     }
 
-    public boolean actualizarContraseña(Roles roleActually,User user, String passwordVieja, String passwordNueva){
+    public boolean updateRol(Roles roleActually, User user, String oldPassword, String newPassword){
         switch (roleActually){
             case OWNER,ADMIN,USER:
-                return usersList.actualizarContraseña(user, passwordVieja, passwordNueva);
+                return usersList.updatePassword(user, oldPassword, newPassword);
             default:
                 return false;
         }
     }
 
-    public boolean actualizarNombre(Roles roleActualy,User user, String nuevoNombre){
+    public boolean updateName(Roles roleActualy, User user, String newName){
         switch (roleActualy){
             case OWNER,ADMIN,USER:
-                usersList.actualizarNombre(user, nuevoNombre);
+                usersList.updateName(user, newName);
                 return true;
             default:
                 return false;
