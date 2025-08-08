@@ -8,6 +8,8 @@ import com.gestion.services.AuthService;
 import com.gestion.services.UserService;
 
 import com.gestion.utils.Permissions;
+
+import java.util.List;
 import java.util.Scanner;
 import java.util.Set;
 
@@ -20,7 +22,7 @@ public class App {
         User user,activeUser = null;
         boolean b;
         String nombre,u_name,pass,nuevoNombre;
-        int id, rol,failureCount=0;
+        int id, rol,blockedUser;
         UserService userService = new UserService(usersList);
 
         User owner = new User("Juan Dueñas","Sadisxz","contraseña123", Roles.OWNER);
@@ -33,7 +35,12 @@ public class App {
             String contraseña = l.nextLine();
             login = authService.login(username,contraseña);
             activeUser = usersList.searchUser(username);
+            if(authService.getBlockedList().contains(activeUser)){
+                System.out.println("Usuario Bloqueado por fallar múltiples veces el inicio de sesión");
+                continue;
+            }
             if(login){
+                authService.setFailureCount(activeUser,0);
                 while(login){
                     Set<Actions> actionsUser = Permissions.accionesRoles.get(activeUser.getRole());
                     b = false;
@@ -49,6 +56,7 @@ public class App {
                     if(actionsUser.contains(Actions.ACTUALIZAR_CONTRASEÑA)) System.out.println("7. Actualizar Contraseña");
                     if(actionsUser.contains(Actions.IMPRIMIR_HISTORIAL_COMPLETO)) System.out.println("8. Imprimir Historial de Todos los Usuarios");
                     if(actionsUser.contains(Actions.MODIFICAR_DATOS_DE_OTRO_USUARIO)) System.out.println("9. Modificar los datos de otro Usuario");
+                    if(actionsUser.contains(Actions.DESBLOQUEAR_USUARIO)) System.out.println("10. Desbloquear Usuario");
 
                     int menu = Integer.parseInt(l.nextLine());
                     System.out.println();
@@ -265,18 +273,41 @@ public class App {
                                 System.out.println("No tienes permiso para realizar esta acción");
                             }
                             break;
+                        case 10:
+                            if(actionsUser.contains(Actions.DESBLOQUEAR_USUARIO)){
+                                int contador = 1;
+                                List<User> blockedUsers = authService.getBlockedList();
+                                System.out.println("Lista de Bloqueados");
+                                for(User u : blockedUsers){
+                                    System.out.println(contador + ": " + u);
+                                    contador++;
+                                }
+                                System.out.println("Ingrese el índice del usuario a desbloquear");
+                                blockedUser = Integer.parseInt(l.nextLine()) - 1;
+                                user = usersList.searchUser(blockedUsers.get(blockedUser).getUsername());
+                                if(user != null){
+                                    blockedUsers.remove(user);
+                                    authService.setFailureCount(user,0);
+                                    System.out.println("Usuario desbloqueado");
+                                }else{
+                                    System.out.println("Usuario inválido");
+                                }
+                            }else{
+                                System.out.println("No tienes permiso para realizar esta acción");
+                            }
+                            break;
                         default:
                             System.out.println("Opción inválida");
                             break;
                     }
                 }
-            }else if(authService.getBlockedList().contains(activeUser)){ //FIXME: Arreglar el bloque de cuentas después de 3 fallos
-                System.out.println("Usuario Bloqueado por fallar múltiples veces el inicio de sesión");
-                }else{
-                System.out.println("Usuario o contraseña incorrecta");
-                if(activeUser != null){
-
-                }
+            }else if(activeUser!= null){
+                System.out.println("Usuario o Contraseña inválida");
+                int count = authService.getFailureCount().getOrDefault(activeUser,0);
+                if(count==2) authService.blockUser(activeUser);
+                authService.setFailureCount(activeUser,(count+1));
+            }else{
+                System.out.println("Usuario inexistente");
             }
         }
     }

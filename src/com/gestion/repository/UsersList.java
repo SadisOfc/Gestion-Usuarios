@@ -1,5 +1,6 @@
 package com.gestion.repository;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -7,6 +8,7 @@ import java.util.List;
 import com.gestion.models.Action;
 import com.gestion.models.Roles;
 import com.gestion.models.User;
+import com.gestion.services.AuthService;
 
 public class UsersList {
     List<User> usersList = new ArrayList<>();
@@ -33,6 +35,7 @@ public class UsersList {
     public boolean createUser(User user){
         User u = searchUser(user.getUsername());
         if(u == null){
+
             usersList.add(user);
             actionsList.createRegister(user.getID());
             actionsList.createRegister(user.getID(),new Action(user,"Se creó el usuario " + user.getUsername(), LocalDateTime.now()));
@@ -67,5 +70,9 @@ public class UsersList {
     public void updateName(User user, String newName){
         user.setFullname(newName);
         actionsList.createRegister(user.getID(),new Action(user,"Se actualizó el nombre del usuario " + user.getUsername(), LocalDateTime.now()));
+    }
+
+    public void blockUser(User user){
+       actionsList.createRegister(user.getID(), new Action(user,"Se bloqueó al usuario " + user.getUsername() + " por fallar el inicio de sesión 3 veces", LocalDateTime.now()));
     }
 }

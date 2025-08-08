@@ -1,0 +1,84 @@
+@startuml
+class Action{
+User user
+String action
+LocalDateTime localDateTime
+
+public User getUser()
+public String getAction()
+public LocalDateTime getLocalDateTime()
+public String toString()
+}
+
+enum Roles{
+OWNER
+ADMIN
+USER
+GUEST
+
+public int getPriority()
+public static Roles getRol(int priority)
+}
+
+class User{
+int contador=1
+String fullname
+int ID
+String username
+String password
+Roles role
+
+public String getFullname()
+public int getID()
+public String getUsername()
+public String getPassword()
+public Roles getRole()
+public void setFullname(String fullname)
+public void setPassword(String password)
+public void setRole(Roles role)
+public String toString()
+}
+
+class ActionList{
+Map<Integer, List<Action>> historial
+
+public void crearRegistro(int id)
+public void crearRegistro(int id, Action action)
+public List<Action> listaUsuario(int id)
+public void imprimirUsuario(int id)
+public void imprimirTodos()
+}
+
+class UsersList{
+List<User> usersList
+static ActionsList actionList
+
+public User buscarUsuario(int id)
+public User buscarUsuario(String username)
+public boolean crearUsuario(User usuario)
+public void eliminarUsuario(User user)
+public void actualizarRol(User user, Roles newRole)
+public boolean actualizarContraseña(User user, String passwordVieja, String passwordNueva)
+public ActionsList getActionsList()
+public void actualizarNombre(User user, String nuevoNombre)
+}
+
+class UserService{
+private UsersList usersList;
+
+public UserService(UsersList usersList)
+public boolean crear(Roles roleActualy,String fullname, String USERNAME, String password, Roles role)
+public boolean eliminar(Roles roleActualy,User user)
+public boolean actualizarRol(Roles roleActually, User user, Roles newRole)
+public boolean actualizarContraseña(Roles roleActually,User user, String passwordVieja, String passwordNueva)
+public boolean actualizarNombre(Roles roleActualy,User user, String nuevoNombre)
+}
+
+class AuthService{
+private UsersList usersList
+
+public AuthService(UsersList usersList)
+public boolean login(String username, String password)
+}
+
+@enduml
